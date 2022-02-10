@@ -3,7 +3,25 @@ const app = express();
 const cors = require("cors");
 const createError = require('http-errors');
 var logger = require('morgan');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const customResponse = require('./middleware/customResponse');
+
+const swaggerOption = {
+    swaggerDefinition: {
+        info: {
+            title: 'LendItApi',
+            description: "Api for lend and borrowing item within the dorm",
+            contract: {
+                name: "Thitare Nimanong"
+            },
+            servers: ["https://lent-it-api.herokuapp.com", "http://localhost:3000"]
+        }
+    },
+    apis: ["app.js", ".routes/*.js"]
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOption);
 
 
 require('dotenv').config();
@@ -13,6 +31,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(logger('dev'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 //custom middleware for doing custom json response
 app.use(customResponse);
@@ -26,6 +45,25 @@ app.use(function (req, res, next) {
     next()
 })
 //test
+
+/**
+ * 
+ * @swagger
+ *  /:
+ *  get:
+ *   description: test api
+ *   parameters:
+ *   - in: query
+ *     name: id
+ *     type: int
+ *   - in: query
+ *     name: catagory
+ *     type : string
+ *   responses:
+ *    200:
+ *     description: A successful response
+ * 
+ */
 app.get('/', (req, res) => {
     let {id, catagory} = req.query;
     if(id === undefined || catagory === undefined) {
@@ -40,6 +78,21 @@ app.get('/', (req, res) => {
             }
         })
     }
+});
+
+/**
+ * @swagger
+ * paths:
+ *  /test:
+ *   get:
+ *    description: test api
+ *    responses:
+ *      200:
+ *          description: A successful response
+ * 
+ */
+app.get('/test', (req, res) => {
+    res.send("test");
 });
 
 const port = process.env.PORT || 3000;
