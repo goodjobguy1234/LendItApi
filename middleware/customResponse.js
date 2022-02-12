@@ -39,6 +39,10 @@ const customResponse = (req, res, next) => {
     res.forbidden = function({errors={}, code=403, message="", result={}}) {
         return res.status(403).error({ errors, code, message, result })
     }
+
+    res.notfound = function({errors={}, code=404, message="", result={}}) {
+        return res.status(404).error({ errors, code, message, result })
+    }
     
     /**
      * (status 401)

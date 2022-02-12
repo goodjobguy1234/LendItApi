@@ -14,18 +14,26 @@ const itemRouter = require('./routes/items');
 const userRouter = require('./routes/users');
 
 const swaggerOption = {
-    swaggerDefinition: {
-        info: {
-            title: 'LendItApi',
-            description: "Api for lend and borrowing item within the dorm",
-            contract: {
-                name: "Thitare Nimanong"
-            },
-            servers: ["https://lent-it-api.herokuapp.com", "http://localhost:3000"]
-        }
-    },
-    apis: ["app.js", "./routes/*.js"]
-};
+	definition: {
+		openapi: "3.0.0",
+		info: {
+			title: "LendItApi",
+			version: "1.0.0",
+			description: "Api for lend and borrowing item within the dorm",
+		},
+		servers: [
+			{
+				url: "https://lent-it-api.herokuapp.com",
+			},
+			{
+				url: "http://localhost:3000"
+			}
+		],
+	},
+	apis: ["./routes/*.js"],
+}
+
+
 
 const swaggerDocs = swaggerJsDoc(swaggerOption);
 
@@ -54,55 +62,6 @@ app.use(function (req, res, next) {
 
 app.use('/items', itemRouter);
 app.use('/users', userRouter);
-
-// /**
-//  * 
-//  * @swagger
-//  *  /:
-//  *  get:
-//  *   description: test api
-//  *   parameters:
-//  *   - in: query
-//  *     name: id
-//  *     type: int
-//  *   - in: query
-//  *     name: catagory
-//  *     type : string
-//  *   responses:
-//  *    200:
-//  *     description: A successful response
-//  * 
-//  */
-// app.get('/', (req, res) => {
-//     let {id, catagory} = req.query;
-//     if(id === undefined || catagory === undefined) {
-//         return res.badreq({
-//             message: "empty id and catagory" 
-//         })
-//     } else {
-//         return res.success({
-//             result: {
-//                 id: +id,
-//                 catagory: catagory
-//             }
-//         })
-//     }
-// });
-
-// /**
-//  * @swagger
-//  * paths:
-//  *  /test:
-//  *   get:
-//  *    description: test api
-//  *    responses:
-//  *      200:
-//  *          description: A successful response
-//  * 
-//  */
-// app.get('/test', (req, res) => {
-//     res.send("test");
-// });
 
 const port = process.env.PORT || 3000;
 

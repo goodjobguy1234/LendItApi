@@ -57,5 +57,9 @@ The features according to the following:
 `GET /transactions` need body user id to get all transaction of that user
 
 
+****
+for more API's information https://lent-it-api.herokuapp.com/api-docs/
+
+
 
 
