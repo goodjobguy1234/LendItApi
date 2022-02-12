@@ -7,6 +7,12 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const customResponse = require('./middleware/customResponse');
 
+require('dotenv').config()
+require('./db/db.js')
+
+const itemRouter = require('./routes/items');
+const userRouter = require('./routes/users');
+
 const swaggerOption = {
     swaggerDefinition: {
         info: {
@@ -18,7 +24,7 @@ const swaggerOption = {
             servers: ["https://lent-it-api.herokuapp.com", "http://localhost:3000"]
         }
     },
-    apis: ["app.js", ".routes/*.js"]
+    apis: ["app.js", "./routes/*.js"]
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOption);
@@ -46,54 +52,57 @@ app.use(function (req, res, next) {
 })
 //test
 
-/**
- * 
- * @swagger
- *  /:
- *  get:
- *   description: test api
- *   parameters:
- *   - in: query
- *     name: id
- *     type: int
- *   - in: query
- *     name: catagory
- *     type : string
- *   responses:
- *    200:
- *     description: A successful response
- * 
- */
-app.get('/', (req, res) => {
-    let {id, catagory} = req.query;
-    if(id === undefined || catagory === undefined) {
-        return res.badreq({
-            message: "empty id and catagory" 
-        })
-    } else {
-        return res.success({
-            result: {
-                id: +id,
-                catagory: catagory
-            }
-        })
-    }
-});
+app.use('/items', itemRouter);
+app.use('/users', userRouter);
 
-/**
- * @swagger
- * paths:
- *  /test:
- *   get:
- *    description: test api
- *    responses:
- *      200:
- *          description: A successful response
- * 
- */
-app.get('/test', (req, res) => {
-    res.send("test");
-});
+// /**
+//  * 
+//  * @swagger
+//  *  /:
+//  *  get:
+//  *   description: test api
+//  *   parameters:
+//  *   - in: query
+//  *     name: id
+//  *     type: int
+//  *   - in: query
+//  *     name: catagory
+//  *     type : string
+//  *   responses:
+//  *    200:
+//  *     description: A successful response
+//  * 
+//  */
+// app.get('/', (req, res) => {
+//     let {id, catagory} = req.query;
+//     if(id === undefined || catagory === undefined) {
+//         return res.badreq({
+//             message: "empty id and catagory" 
+//         })
+//     } else {
+//         return res.success({
+//             result: {
+//                 id: +id,
+//                 catagory: catagory
+//             }
+//         })
+//     }
+// });
+
+// /**
+//  * @swagger
+//  * paths:
+//  *  /test:
+//  *   get:
+//  *    description: test api
+//  *    responses:
+//  *      200:
+//  *          description: A successful response
+//  * 
+//  */
+// app.get('/test', (req, res) => {
+//     res.send("test");
+// });
 
 const port = process.env.PORT || 3000;
 
