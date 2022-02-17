@@ -7,8 +7,75 @@ const Item = require('../db/models/items');
 const { body, validationResult, oneOf, check, param} = require('express-validator');
 const {isUserExist} = require('../utility/util');
 
-// borrower side 
-// *** fin not test ***
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *      Borrow:
+ *          type: object
+ *          required:
+ *              - itemID
+ *              - borrowerID
+ *              - lenderID
+ *          properties:
+ *              itemID:
+ *                  type: string
+ *                  description: id to reference to item
+ *              borrowerID:
+ *                  type: string
+ *                  description: student id of borrower
+ *              lenderID:
+ *                  type: string
+ *                  description: student id of owner of item
+ *              pendingStat:
+ *                  type: boolean
+ *                  description: pending status when ask for borrow item (wait for owner to accept)
+
+ *          example:
+ *              itemID: 620e76bdd7eead24fee42f81
+ *              borrowerID: 6110155
+ *              lenderID: 6210015
+ *              
+ */
+
+/**
+ * @swagger
+ * tags:
+ *  name: Borrows
+ *  desciption: api used for borrow item
+ */
+
+
+/**
+ * @swagger
+ * /borrows/borrower?userId=6210015:
+ *   get:
+ *     summary: Get borrow of that user
+ *     tags: [Borrows]
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user's student id
+ *     responses:
+ *       200:
+ *         description: all user borrow item to show with status
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 type: object
+ *                 properties:
+ *                    result:
+ *                        $ref: '#/components/schemas/Borrow'
+ *                    code:
+ *                        type: integer
+ *                    message:
+ *                        type: string  
+ *       400:
+ *         description: error from bad request
+ */
 router.get('/borrower', (req, res) => {
     isUserExist(req, res, () => {
         Borrow.find({borrowerID: req.query.userId}, (err, resultRes) => {
@@ -18,7 +85,36 @@ router.get('/borrower', (req, res) => {
     });
 });
 
-//lenderSide fin for checking
+/**
+ * @swagger
+ * /borrows/lender?userId=6210015:
+ *   get:
+ *     summary: information who you lend item to
+ *     tags: [Borrows]
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user's student id
+ *     responses:
+ *       200:
+ *         description: all user borrow item to show with status
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 type: object
+ *                 properties:
+ *                    result:
+ *                        $ref: '#/components/schemas/Borrow'
+ *                    code:
+ *                        type: integer
+ *                    message:
+ *                        type: string  
+ *       400:
+ *         description: error from bad request
+ */
 router.get('/lender', (req, res) => {
     const userId = req.query.userId;
     isUserExist(req, res, () => {
@@ -29,7 +125,34 @@ router.get('/lender', (req, res) => {
     });
 });
 
-//create borrow ** fin for checking
+/**
+ * @swagger
+ * /borrows/create-borrow:
+ *  post:
+ *      summary: create Borrow
+ *      description: when user click to borrow smt
+ *      tags: [Borrows]
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#/components/schemas/Borrow'
+ *      responses:
+ *          200:
+ *              description: create borrow success
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              result:
+ *                                  $ref: '#/components/schemas/Borrow'
+ *                              code:
+ *                                  type: integer  
+ *                              message:
+ *                                  type: string
+ */
 router.post('/create-borrow', (req, res) => {
     console.log(req.body.itemID)
     Item.findById({_id: req.body.itemID},(err, item) => {
@@ -55,7 +178,7 @@ router.post('/create-borrow', (req, res) => {
 
 //lender accept for borrow 
 router.put('', (req, res) => {
-
+    
 });
 
 

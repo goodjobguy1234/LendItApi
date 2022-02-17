@@ -7,18 +7,6 @@ var Borrow = require("../db/models/borrows.js");
 
 const { body, validationResult, oneOf, check, param} = require('express-validator');
 const { isUserExist } = require("../utility/util");
-// const { isUserExist } = require("../utility/util");
-
-// function isUserExist(req, res, callback) {
-//     User.exists({id: req.params.userId}, (err, result) => {
-//         if(!result) {
-//             return res.notfound({errors:err, message: "this user doesnot exist", result: result});
-//         }
-        
-//         callback();
-//     });
-// }
-
 /**
  * @swagger
  * components:
@@ -30,6 +18,7 @@ const { isUserExist } = require("../utility/util");
  *              - firstname
  *              - lastname
  *              - phoneNumber
+ *              - dormLocation
  *          properties:
  *              id:
  *                  type: string
@@ -141,98 +130,35 @@ router.get("/:userId", (req, res) => {
 
 /**
  * @swagger
- * /users/{userId}/items:
- *   get:
- *     summary: get all item that user's posted
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: userId
- *         schema:
- *           type: string
- *         required: true
- *         description: The user's student id
- *     responses:
- *       200:
- *         content:
- *           application/json:
- *             schema:
- *                  type: object
- *                  properties:
- *                      result:
- *                          type: array
- *                          items:
- *                              $ref: '#/components/schemas/Item'
- *                      code:
- *                          type: integer
- *                      message:
- *                          type: string 
- *       404:
- *         description: The book was not found
+ * /users/{userId}:
+ *  put:
+ *    summary: Update user profile
+ *    tags: [Users]
+ *    parameters:
+ *      - in: path
+ *        name: userId
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: The user id
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/User'
+ *    responses:
+ *      200:
+ *        description: The user's profile was updated
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/User'
+ *      404:
+ *        description: This user was not found
+ *      500:
+ *        description: Some error happened
  */
-// router.get('/:userId/items', (req, res) => {
-//     const userId = req.params.userId;
-//     isUserExist(req, res, () => {
-//         Item.find({ownerID: userId}, (err, resultRes) => {
-//             if(err) return res.internal({errors: err.errors, message: err.message});
-//             return res.success({result: resultRes, message: "get posted item success"});
-//         });
-//     })
-   
-//     // User.findOne({"id": userId}, (err, resultRes) => {
-//     //     if(!resultRes) return res.badreq({errors: err, message: "no user exists"});
-//     //     else {
-//     //         Item.find({ownerID: userId}, (err, resultRes) => {
-//     //             return res.success({result: resultRes, message: "get posted item success"});
-//     //         });
-//     //     }
-//     // });
-// });
-
-/**
- * @swagger
- * /users/{userId}/{itemID}:
- *   delete:
- *     summary: Remove the user's item by their student id and item id
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: userId
- *         schema:
- *           type: string
- *         required: true
- *         description: The user's student id
- *       - in: path
- *         name: itemID
- *         schema:
- *           type: string
- *         required: true
- *         description: The item's id
- *     responses:
- *       200:
- *         description: The book was deleted
- *       404:
- *         description: The book was not found
- */
-// router.delete('/:userId/:itemID', (req, res) => {
-//     const {userId, itemID} = req.params;
-    
-//     User.exists({id: userId}, (err, result) => {
-//         if(!result) {
-//             return res.notfound({message: "this user not exist"});
-//         } else {
-//             Item.findOneAndDelete({"_id": itemID}, (err, deleteResult) => {
-//                 if(err) return res.error({errors:err, message: "error in delete"});
-//                 if(!deleteResult) {
-//                     return res.notfound({message: "item not found"});
-//                 }
-//                 return res.success({message: "deleted success"});
-//             })
-//         }
-//     });
-// });
-
-
 router.put('/:userId',  
     body("id").exists().trim().isString().notEmpty(),
     body("firstname").exists().trim().isString().notEmpty(),
@@ -257,18 +183,34 @@ router.put('/:userId',
     }
 });
 
-// router.put('/:userId/:itemId', (req, res) => {
-//     const {userId, itemId} = req.params;
-//     const updatedItem = req.body;
-//     User.exists({id: userId}, (userErr, result) => {
-//         if(!result) {return res.notfound({errors: userErr, message: "user doesn't exist"});}
-//         Item.findOneAndUpdate({"_id": itemId}, updatedItem, {new: true}, (err, doc) => {
-//             if(!doc) return res.notfound({errors: err, message: "update fail, no item found"});
-//             if(err) return res.internal({errors: err, message: "update fail, something went wrong"});
-//             return res.success({result: doc, message: "update item success"});
-//         });
-//     });
-// });
+/**
+ * @swagger
+ * /users:
+ *  post:
+ *      summary: create new user
+ *      description: create new user when register
+ *      tags: [Users]
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#/components/schemas/User'
+ *      responses:
+ *          200:
+ *              description: create user success
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              result:
+ *                                  $ref: '#/components/schemas/User'
+ *                              code:
+ *                                  type: integer  
+ *                              message:
+ *                                  type: string
+ */
 router.post('/', (req, res) => {
     const newUser = new User({...(req.body)});
     newUser.save((err, newInstance) => {

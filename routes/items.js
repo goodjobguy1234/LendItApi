@@ -12,13 +12,14 @@ var User = require('../db/models/users');
  *          type: object
  *          required:
  *              - ownerID
- *              - price/day
+ *              - pricePerDay
  *              - name
+ *              - location
  *          properties:
  *              name:
  *                  type: string
  *                  description: name of item
- *              price/day:
+ *              pricePerDay:
  *                  type: integer
  *                  description: price per day
  *              ownerID:
@@ -35,7 +36,7 @@ var User = require('../db/models/users');
  *                  description: item's description
  *          example:
  *              name: itemName
- *              price/day: 300
+ *              pricePerDay: 300
  *              ownerID: 6210015
  *              imageURL: https://i.gadgets360cdn.com/products/large/1549533234_635_New_Nintendo_2DS_XL.jpg?downsize=*:180&amp;output-quality=80&amp;output-format=webp
  *              location: king david
@@ -47,14 +48,23 @@ var User = require('../db/models/users');
  * @swagger
  * tags:
  *  name: Items
- *  desciption: Item api for dashboard
+ *  desciption: Item api for dashboard and user's item
  */
 
 /**
  * @swagger
- * /items:
+ * /items?userId=6210015:
  *  get:
- *   description: get all item data for show in the dash board.
+ *   summary: get all avaliable item or get user's item
+ *   description: get all avaliable item data for show in the dash board or get all posted user item.
+ *   parameters:
+ *     - in: query
+ *       name: userId
+ *       schema:
+ *          type: string
+ *       required: false
+ *       description: user id string to get all posted item of specific user.
+ *          
  *   tags: [Items]
  *   responses:
  *    200:
@@ -94,10 +104,7 @@ router.get("/", (req, res) => {
             }
             Item.find({ownerID: userId}, (err, resultRes) => {
                 if(err) return res.internal({errors: err.errors, message: err.message});
-                const endResult = resultRes.filter((item) => {
-                    return item.avaliable == true
-                })
-                return res.success({result: endResult, message: "get posted item success"});
+                return res.success({result: resultRes, message: "get posted item success"});
             });
         });
     }
@@ -107,7 +114,7 @@ router.get("/", (req, res) => {
  * @swagger
  * /items/{id}:
  *   get:
- *     summary: Get the item by id
+ *     summary: Get item by id
  *     tags: [Items]
  *     parameters:
  *       - in: path
@@ -122,7 +129,14 @@ router.get("/", (req, res) => {
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Item'
+ *                 type: object
+ *                 properties:
+ *                    result:
+ *                        $ref: '#/components/schemas/Item'
+ *                    code:
+ *                        type: integer
+ *                    message:
+ *                        type: string  
  *       404:
  *         description: The Item was not found
  */
@@ -141,6 +155,7 @@ router.get("/:id", (req, res) => {
  * @swagger
  * /items:
  *  post:
+ *      summary: create Item
  *      description: create item for others to borrowing
  *      tags: [Items]
  *      requestBody:
@@ -174,7 +189,25 @@ router.post("/", (req, res) => {
     })
 });
 
-
+/**
+ * @swagger
+ * /items/{id}:
+ *   delete:
+ *     summary: Remove item
+ *     tags: [Items]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The item's id
+ *     responses:
+ *       200:
+ *         description: deleted success
+ *       404:
+ *         description: item not found
+ */
 router.delete('/:itemID', (req, res) => {
     const {itemID} = req.params;
     Item.findOneAndDelete({"_id": itemID}, (err, deleteResult) => {
@@ -186,7 +219,37 @@ router.delete('/:itemID', (req, res) => {
     })
 });
 
-
+/**
+ * @swagger
+ * /items/{id}:
+ *  put:
+ *    summary: Update the item by the id
+ *    tags: [Items]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: The item id
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Item'
+ *    responses:
+ *      200:
+ *        description: The item was updated
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Item'
+ *      404:
+ *        description: The book was not found
+ *      500:
+ *        description: Some error happened
+ */
 router.put('/:itemId', (req, res) => {
     const {itemId} = req.params;
     const updatedItem = req.body;
