@@ -79,8 +79,11 @@ router.get("/", (req, res) => {
     if(userId === undefined) {
         Item.find({}, (err, resultRes) => {
             if(err) return res.error({errors: err.errors, result: resultRes, message: err.message});
-            else return res.success({
-                    result: resultRes,
+            const endResult = resultRes.filter((item) => {
+                return item.avaliable == true
+            })
+            return res.success({
+                    result: endResult,
                     message: "retrieve all item successful"
                 });
         });
@@ -91,7 +94,10 @@ router.get("/", (req, res) => {
             }
             Item.find({ownerID: userId}, (err, resultRes) => {
                 if(err) return res.internal({errors: err.errors, message: err.message});
-                return res.success({result: resultRes, message: "get posted item success"});
+                const endResult = resultRes.filter((item) => {
+                    return item.avaliable == true
+                })
+                return res.success({result: endResult, message: "get posted item success"});
             });
         });
     }
