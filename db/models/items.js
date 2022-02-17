@@ -3,15 +3,26 @@ var mongoose = require("mongoose");
 
 //Define a schema
 var Schema = mongoose.Schema;
+const User = require('./users');
+const validateRef = require("../../middleware/validateRef");
 
 var ItemSchema = new Schema({
-  "name": String,
-  "price/day": {type: Number, min: 50},
-  "imageURL": String,
-  "ownerID": String,
-  "location": String,
-  "itemDesciption": String
+  name: {type: String, required: true},
+  pricePerDay: {type: Number, min: 50, required: true},
+  imageURL: String,
+  ownerID: {type: String, required: true},
+  location: {type: String, required: true},
+  itemDesciption: String,
+  avaliable: {type: Boolean, default: true}
 });
 
-//Export function to create "CustomerSchema" model class
-module.exports = mongoose.model("Items", ItemSchema);
+const ItemModel = mongoose.model("Items", ItemSchema, "items", { strict: true });
+
+ItemSchema.path('ownerID').validate(function (value) {
+  return User.findOne({id: value}).exec().then((value) => {
+    if(!value) return false
+    else return true
+  })
+}, '`{VALUE}` is not exist');
+
+module.exports = ItemModel;

@@ -9,9 +9,16 @@ const customResponse = require('./middleware/customResponse');
 
 require('dotenv').config()
 require('./db/db.js')
+const Item = require('./db/models/items');
+const User = require('./db/models/users');
+
+const itemData = require('./sampleData/items.json');
+const userData = require('./sampleData/users.json');
 
 const itemRouter = require('./routes/items');
 const userRouter = require('./routes/users');
+const transactionRouter = require('./routes/transactions');
+const BorrowRouter = require('./routes/borrows');
 
 const swaggerOption = {
 	definition: {
@@ -62,6 +69,22 @@ app.use(function (req, res, next) {
 
 app.use('/items', itemRouter);
 app.use('/users', userRouter);
+app.use('/transactions', transactionRouter);
+app.use('/borrows', BorrowRouter);
+
+app.get('/loadItemData', (req, res) => {
+    Item.insertMany(itemData,{ ordered: false, rawResult: true }, (err, newCollection) => {
+        if(err) return res.internal({errors: err, result: newCollection, message: "load item fail"});
+        return res.success({errors: err, result: newCollection, message: "load item sucess"});
+    });
+});
+
+app.get('/loadUserData', (req, res) => {
+	User.insertMany(userData, (err, newCollection) => {
+        if(err) return res.internal({errors: err, result: newCollection, message: "load item fail"});
+        return res.success({errors: err, result: newCollection, message: "load item sucess"});
+    });
+});
 
 const port = process.env.PORT || 3000;
 

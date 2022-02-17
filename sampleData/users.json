@@ -1,0 +1,72 @@
+[
+    {
+        "id": "6210015",
+        "firstname": "Thitare",
+        "lastname": "Nimanong",
+        "email": "thitare2020@gmail.com",
+        "phoneNumber": "063-948-9842",
+        "dormLocation": "queen sheba 8 floor, A803",
+        "imageURL": "https://images.generated.photos/pRwSE6hV8UOF2oFCewI73WRzxw0KD1wg5uKFmP-y4TM/rs:fit:512:512/wm:0.95:sowe:18:18:0.33/czM6Ly9pY29uczgu/Z3Bob3Rvcy1wcm9k/LnBob3Rvcy92M18w/MDczMjk4LmpwZw.jpg"
+    },{
+        "id": "6110155",
+        "firstname": "Edith",
+        "lastname": "Charles",
+        "email": "shakhti61@outluk.co",
+        "phoneNumber": "02-982-1455",
+        "dormLocation": "king david 3 floor",
+        "imageURL": "https://images.generated.photos/Gsig2ywUZwUxJW1IntJsmPQCbDZJp3EWPqRDt10u2To/rs:fit:512:512/wm:0.95:sowe:18:18:0.33/czM6Ly9pY29uczgu/Z3Bob3Rvcy1wcm9k/LnBob3Rvcy92M18w/NTk1ODE5LmpwZw.jpg"
+    },
+    { "id": "6310023",
+        "firstname": "Jeffrey Zhi",
+        "lastname": "Yee Chong",
+        "email": "jeffreyzhiyeechong@gmail.com",
+        "phoneNumber": "083-695-5014",
+        "dormLocation": "king david 4 floor",
+        "imageURL": "https://images.generated.photos/82hB43bKujQhcx2A_aUhqlhb1rtyS_lNBTu88S0SLwc/rs:fit:512:512/wm:0.95:sowe:18:18:0.33/czM6Ly9pY29uczgu/Z3Bob3Rvcy1wcm9k/LnBob3Rvcy92M18w/MTUyMzU5LmpwZw.jpg"
+    }, 
+    {
+        "id": "6111252",
+        "firstname": "Krittamet",
+        "lastname": "Chuwongworaphinit",
+        "email": "u6111252@au.edu",
+        "phoneNumber": "02-584-1383",
+        "dormLocation": "king david 7 floor",
+        "imageURL": "https://images.generated.photos/evY6YgOAki9uzWngEJQXEOtL3Z1l6qkNI1r47L58Zyw/rs:fit:512:512/wm:0.95:sowe:18:18:0.33/czM6Ly9pY29uczgu/Z3Bob3Rvcy1wcm9k/LnBob3Rvcy92M18w/NjAxMzY0LmpwZw.jpg"
+    },
+    {
+        "id": "6111253",
+        "firstname": "Koa",
+        "lastname": "Hollis",
+        "email": "bishnus@manual219.xyz",
+        "phoneNumber": "066-272-9526",
+        "dormLocation": "queen sheba 4 floor",
+        "imageURL": "https://images.generated.photos/8sB2f5HueeQ829899apcjIZPykYvNOoeGL7SYfUK2mI/rs:fit:512:512/wm:0.95:sowe:18:18:0.33/czM6Ly9pY29uczgu/Z3Bob3Rvcy1wcm9k/LnBob3Rvcy92M18w/Njk5NjI3LmpwZw.jpg"
+    },
+    {
+        "id": "6211252",
+        "firstname": "Damon",
+        "lastname": "Vasquez",
+        "email": "visejo@omtecha.com",
+        "phoneNumber": "029-345-3600",
+        "dormLocation": "king david 5 floor",
+        "imageURL": "https://images.generated.photos/P8QsrP_RYbhVJpLB1MuOjaXmTlkhgU57T0cbdyMgWUc/rs:fit:512:512/wm:0.95:sowe:18:18:0.33/czM6Ly9pY29uczgu/Z3Bob3Rvcy1wcm9k/LnBob3Rvcy92M18w/MjIyMDkwLmpwZw.jpg"
+    },
+    {
+        "id": "6411252",
+        "firstname": "June",
+        "lastname": "Holland",
+        "email": "bulyeou@maoaokachima.com",
+        "phoneNumber": "066-228-4013",
+        "dormLocation": "queen sheba 6 floor",
+        "imageURL": "https://images.generated.photos/ZUX_gPUOTKmhf_D_EGMs6VBbYiJ_gl1ILEHMWUb-NAA/rs:fit:512:512/wm:0.95:sowe:18:18:0.33/czM6Ly9pY29uczgu/Z3Bob3Rvcy1wcm9k/LnBob3Rvcy92M18w/OTU0Njk0LmpwZw.jpg"
+    },
+    {
+        "id": "6011252",
+        "firstname": "Rico",
+        "lastname": "Wooten",
+        "email": "fleytman@locksmangaragedoors.info",
+        "phoneNumber": "066-225-5244",
+        "dormLocation": "king david 8 floor",
+        "imageURL": "https://images.generated.photos/Gsig2ywUZwUxJW1IntJsmPQCbDZJp3EWPqRDt10u2To/rs:fit:512:512/wm:0.95:sowe:18:18:0.33/czM6Ly9pY29uczgu/Z3Bob3Rvcy1wcm9k/LnBob3Rvcy92M18w/NTk1ODE5LmpwZw.jpg"
+    }
+]

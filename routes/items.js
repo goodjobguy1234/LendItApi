@@ -1,8 +1,8 @@
 const express =require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-var Item = require("../db/models/items.js");
-var User = require("../db/models/users.js");
+var Item = require("../db/models/items");
+var User = require('../db/models/users');
 
 /**
  * @swagger
@@ -75,12 +75,26 @@ var User = require("../db/models/users.js");
  * 
  */
 router.get("/", (req, res) => {
-    Item.find({}, (err, resultRes) => {
-        if(err) return res.error({message: "db retrieving error"});
-        else return res.success({
-                result: resultRes
+    const userId= req.query.userId;
+    if(userId === undefined) {
+        Item.find({}, (err, resultRes) => {
+            if(err) return res.error({errors: err.errors, result: resultRes, message: err.message});
+            else return res.success({
+                    result: resultRes,
+                    message: "retrieve all item successful"
+                });
+        });
+    } else {
+        User.exists({id: userId}, (err, result) => {
+            if(!result) {
+                return res.notfound({errors:err, message: "this user doesnot exist", result: result});
+            }
+            Item.find({ownerID: userId}, (err, resultRes) => {
+                if(err) return res.internal({errors: err.errors, message: err.message});
+                return res.success({result: resultRes, message: "get posted item success"});
             });
-    });
+        });
+    }
 });
 
 /**
@@ -108,13 +122,14 @@ router.get("/", (req, res) => {
  */
 router.get("/:id", (req, res) => {
     const id = req.params.id;
-    if(id === undefined) return res.badreq({message: "not specified item id"});
 
-    Item.findOne({"_id": id}, (err, resultRes) => {
-        if(err) return res.badreq({errors: err, message: "not specified item id"});
-        else return res.success({result: resultRes});
+    Item.findOne({_id: id}, (err, resultRes) => {
+        if(err) return res.badreq({errors: err.errors, message: err.message});
+        else return res.success({result: resultRes, message: "retrieve item detail success"});
     });
 });
+
+
 
 /**
  * @swagger
@@ -145,22 +160,35 @@ router.get("/:id", (req, res) => {
  */
 router.post("/", (req, res) => {
     const itemData = req.body;
-    if(itemData.ownerID === undefined) return res.badreq({message: "ownerID is empty please specified ownerID"});
 
-    User.countDocuments({"id": (itemData.ownerID)}, function (err, count){ 
-        if(count>0){
-            const newItem = new Item({...itemData});
-            newItem.save((err, newInstance) => {
-                if(err) return res.internal({errors: err, message: "cannot save items in the database"});
-                else return res.success({result:newInstance, message: "create item success"});
-            }); 
-        } else {
-            return res.error({message: "user not exists"});
-        }
-    }); 
+    const newItem = new Item({...itemData});
+    newItem.save((err, newInstance) => {
+        if(err) return res.internal({errors: err.errors, message: err.message});
+        return res.success({result:newInstance, message: "create item success"});
+    })
 });
 
 
+router.delete('/:itemID', (req, res) => {
+    const {itemID} = req.params;
+    Item.findOneAndDelete({"_id": itemID}, (err, deleteResult) => {
+        if(err) return res.error({errors:err.errors, message: err.message});
+        if(!deleteResult) {
+            return res.notfound({message: "item not found"});
+        }
+        return res.success({message: "deleted success"});
+    })
+});
 
+
+router.put('/:itemId', (req, res) => {
+    const {itemId} = req.params;
+    const updatedItem = req.body;
+    Item.findOneAndUpdate({_id: itemId}, updatedItem, {new: true}, (err, doc) => {
+        if(!doc) return res.notfound({errors: err, message: "update fail, no item found"});
+        if(err) return res.badreq({errors: err.errors, message: err.message});
+        return res.success({result: doc, message: "update item success"});
+    });
+});
 
 module.exports = router;
