@@ -30,10 +30,7 @@ const swaggerOption = {
 		},
 		servers: [
 			{
-				url: "https://lent-it-api.herokuapp.com",
-			},
-			{
-				url: "http://localhost:3000"
+				url: "https://lent-it-api.herokuapp.com"
 			}
 		],
 	},

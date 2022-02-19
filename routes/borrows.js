@@ -17,6 +17,7 @@ const {isUserExist} = require('../utility/util');
  *              - itemID
  *              - borrowerID
  *              - lenderID
+ *              - borrowDuration
  *          properties:
  *              itemID:
  *                  type: string
@@ -30,11 +31,15 @@ const {isUserExist} = require('../utility/util');
  *              pendingStat:
  *                  type: boolean
  *                  description: pending status when ask for borrow item (wait for owner to accept)
+ *              borrowDuration:
+ *                  type: Integer
+ *                  description: duration that borrow the item.
 
  *          example:
  *              itemID: 620e76bdd7eead24fee42f81
  *              borrowerID: 6110155
  *              lenderID: 6210015
+ *              borrowDuration: 1
  *              
  */
 
@@ -154,7 +159,6 @@ router.get('/lender', (req, res) => {
  *                                  type: string
  */
 router.post('/create-borrow', (req, res) => {
-    console.log(req.body.itemID)
     Item.findById({_id: req.body.itemID},(err, item) => {
         if(!item) return res.notfound({message: "item not found"});
         if(err) return res.badreq({errors:err.errors, meesage: err.meesage});
@@ -176,13 +180,84 @@ router.post('/create-borrow', (req, res) => {
     });
 });
 
-//lender accept for borrow 
-router.put('', (req, res) => {
-    
+
+/**
+ * @swagger
+ * /borrows/lender/accept:
+ *  patch:
+ *    summary: update pending status
+ *    description: when lender accept borrow request from borrower
+ *    tags: [Borrows]
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *              type: object
+ *              properties:
+ *                  borrowID:
+ *                      type: string
+ *    responses:
+ *      200:
+ *        description: borrow request accept
+ *      404:
+ *        description: borrow request not found
+ *      500:
+ *        description: Something went wrong
+ */
+//lender accept for borrow --> then create transaction(p.crate by himself)
+router.patch('/lender/accept', (req, res) => {
+    const borrowID = req.body.borrowID;
+    Borrow.findByIdAndUpdate(borrowID, {pendingStat: true}, {new: true}).exec().then((value) => {
+        if(!value) return res.notfound({message: "borrow request not found"})
+        return res.success({message: "borrow request accepted"});
+    }).catch((err) => {
+        return res.badreq({errors:err.meesage, message: err.message});
+    })
 });
 
-
-
-
+/**
+ * @swagger
+ * /borrows/{id}:
+ *   get:
+ *     summary: get detail borrow request
+ *     tags: [Borrows]
+ *     parameters:
+ *       - in: parameter
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: borrow request id
+ *     responses:
+ *       200:
+ *         description: all user borrow item to show with status
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 type: object
+ *                 properties:
+ *                    result:
+ *                        $ref: '#/components/schemas/Borrow'
+ *                    code:
+ *                        type: integer
+ *                    message:
+ *                        type: string  
+ *       400:
+ *         description: error from bad request
+ *       404:
+ *         description: borrow request not found
+ */
+router.get('/:id', (req, res) => {
+    Borrow.findById(req.params.id)
+    .populate({
+        path: 'itemID',
+        model: "Items"
+    }).exec((err, resultRes) => {
+        if(err) return res.internal({errors:err.errors, message:err.meesage});
+        if(!resultRes) return res.notfound({message: "borrow request not found"});
+        return res.success({result: resultRes, message: "retrieve detail of borrow request successful"});
+    });
+});
 
 module.exports = router;

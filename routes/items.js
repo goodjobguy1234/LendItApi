@@ -3,6 +3,8 @@ const router = express.Router();
 const mongoose = require("mongoose");
 var Item = require("../db/models/items");
 var User = require('../db/models/users');
+var Transaction = require('../db/models/transactions');
+var Borrow = require('../db/models/borrows');
 
 /**
  * @swagger
@@ -253,11 +255,13 @@ router.delete('/:itemID', (req, res) => {
 router.put('/:itemId', (req, res) => {
     const {itemId} = req.params;
     const updatedItem = req.body;
-    Item.findOneAndUpdate({_id: itemId}, updatedItem, {new: true}, (err, doc) => {
-        if(!doc) return res.notfound({errors: err, message: "update fail, no item found"});
-        if(err) return res.badreq({errors: err.errors, message: err.message});
-        return res.success({result: doc, message: "update item success"});
-    });
+    Borrow.deleteMany({itemID: itemId}).exec().then(() => {
+        Item.findOneAndUpdate({_id: itemId}, updatedItem, {new: true}, (err, doc) => {
+            if(!doc) return res.notfound({errors: err, message: "update fail, no item found"});
+            if(err) return res.badreq({errors: err.errors, message: err.message});
+            return res.success({result: doc, message: "update item success"});
+        });
+    }).catch((err) => res.internal({errors: err.errors, message: err.message}));
 });
 
 module.exports = router;

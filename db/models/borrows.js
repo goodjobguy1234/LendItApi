@@ -11,7 +11,8 @@ var BorrowSchema = new Schema({
     itemID: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Items'},
     borrowerID: {type: String, required: true},
     lenderID: {type: String, required: true},
-    pendingStat: {type: Boolean, default: false}
+    pendingStat: {type: Boolean, default: false},
+    borrowDuration: {type: Number, required: true, min: 1}
   });
 
 const BorrowModel = mongoose.model("Borrows", BorrowSchema, "borrows", { strict: true });

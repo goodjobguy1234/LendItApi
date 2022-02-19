@@ -8,32 +8,17 @@ const User = require('./users');
 var Schema = mongoose.Schema;
 
 var TransactionSchema = new Schema({
-    borrowID: {type: String, required: true},
-    lenderID: {type: String, required: true},
-    totalPrice: {type: Number, required: true, min: 50},
-    pending:{type: Boolean, default: false},
-    borrowedDuration: {type: Number, required: true},
-    itemID: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Items'}
+    totalPrice: {type: Number, required: [true, 'Please Specify Total Price'], min: [50, 'Minimum Total Price is 50 Please given more price']},
+    returnStatus:{type: Boolean, default: false},
+    borrowID: {type: mongoose.Schema.Types.ObjectId, required: [true, 'Please Specify borrowID'], ref: 'Borrows'}
   });
 
 const TransactionModel = mongoose.model("Transactions", TransactionSchema, "transactions", { strict: true });
 
-TransactionSchema.path('itemID').validate(function (value) {
- return validateRef(value, Item);
-}, "Invalid transaction id");
 
-TransactionSchema.path('borrowID').validate(function (value) {
-  return User.findOne({id: value}).exec().then((value) => {
-    if(!value) return false
-    else return true
-  })
-}, '`{VALUE}` is not exist');
+TransactionSchema.path('borrowID').validate(function(value) {
+  return validateRef(value, Borrow);
+}, "Invalid borrow id");
 
-TransactionSchema.path('lenderID').validate(function (value) {
-  return User.findOne({id: value}).exec().then((value) => {
-    if(!value) return false
-    else return true
-  })
-}, '`{VALUE}` is not exist');
 
 module.exports = TransactionModel
