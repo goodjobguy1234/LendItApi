@@ -79,19 +79,44 @@ router.post('/', (req,res) => {
     })
 });
 
+/**
+ * @swagger
+ * /transactions:
+ *   get:
+ *     summary: get all transaction
+ *     tags: [Transactions]
+ *     responses:
+ *       200:
+ *         description: all transaction or all user transaction retrieve
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 type: object
+ *                 properties:
+ *                    result:
+ *                        type: array
+ *                        items:
+ *                          $ref: '#/components/schemas/Transaction'
+ *                    code:
+ *                        type: integer
+ *                    message:
+ *                        type: string  
+ *       400:
+ *         description: error from bad request
+ */
 
 /**
  * @swagger
  * /transactions/{userId}:
  *   get:
- *     summary: get all transaction or get current user transaction
+ *     summary: get current user transaction
  *     tags: [Transactions]
  *     parameters:
  *       - in: path
  *         name: userId
  *         schema:
  *           type: string
- *         required: false
+ *         required: true
  *         description: The user's student id
  *     responses:
  *       200:
