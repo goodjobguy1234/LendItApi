@@ -87,7 +87,7 @@ router.post('/', (req,res) => {
  *     summary: get all transaction or get current user transaction
  *     tags: [Transactions]
  *     parameters:
- *       - in: parameter
+ *       - in: path
  *         name: userId
  *         schema:
  *           type: string
@@ -135,7 +135,7 @@ router.get('/:userId?', (req, res) => {
                 })
                 res.success({result: endResult, message: "retrieve users transaction"});
             })
-        })
+        });
     } else {
         Transaction.find().exec((err, resultRes) => {
             if(err) return res.internal({errors:err.errors, message: err.message});
@@ -153,7 +153,7 @@ router.get('/:userId?', (req, res) => {
  *     summary: update transaction return status
  *     tags: [Transactions]
  *     parameters:
- *       - in: parameter
+ *       - in: path
  *         name: id
  *         schema:
  *           type: string
@@ -191,7 +191,7 @@ router.patch('/:id', (req,res) => {
  *     summary: get detail transaction
  *     tags: [Transactions]
  *     parameters:
- *       - in: parameter
+ *       - in: path
  *         name: id
  *         schema:
  *           type: string

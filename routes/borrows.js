@@ -223,7 +223,7 @@ router.patch('/lender/accept', (req, res) => {
  *     summary: get detail borrow request
  *     tags: [Borrows]
  *     parameters:
- *       - in: parameter
+ *       - in: path
  *         name: id
  *         schema:
  *           type: string
