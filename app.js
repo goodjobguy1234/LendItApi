@@ -6,6 +6,7 @@ var logger = require('morgan');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const customResponse = require('./middleware/customResponse');
+const bcrypt = require('bcryptjs');
 
 require('dotenv').config()
 require('./db/db.js')
@@ -19,6 +20,8 @@ const itemRouter = require('./routes/items');
 const userRouter = require('./routes/users');
 const transactionRouter = require('./routes/transactions');
 const BorrowRouter = require('./routes/borrows');
+const AuthRouter = require('./routes/auth');
+const { use } = require("./routes/users");
 
 const swaggerOption = {
 	definition: {
@@ -66,7 +69,7 @@ app.use(function (req, res, next) {
     next()
 })
 //test
-
+app.use('/auth', AuthRouter);
 app.use('/items', itemRouter);
 app.use('/users', userRouter);
 app.use('/transactions', transactionRouter);
@@ -80,10 +83,44 @@ app.get('/loadItemData', (req, res) => {
 });
 
 app.get('/loadUserData', (req, res) => {
-	User.insertMany(userData, (err, newCollection) => {
-        if(err) return res.internal({errors: err, result: newCollection, message: "load item fail"});
-        return res.success({errors: err, result: newCollection, message: "load item sucess"});
-    });
+	userData.forEach( async (user) => {
+		let userItem = {}
+
+		const salt = await bcrypt.genSalt(10);
+		const hashPassword = await bcrypt.hash(user.password, salt);
+		
+		for (const key in user) {
+			// console.log(key)
+			if(key == "password") {
+				userItem[`${key}`] = hashPassword;
+			} else {
+				userItem[`${key}`] = user[`${key}`];
+			}
+		}
+		console.log("print from user item",userItem)
+		
+		var endUser = new User({...userItem});
+		endUser.save();
+	});
+	return res.success({message: "user saved"})
+	// User.insertMany(userData, (err, newCollection) => {
+    //     if(err) return res.internal({errors: err, result: newCollection, message: "load item fail"});
+    //     return res.success({errors: err, result: newCollection, message: "load item sucess"});
+    // });
+});
+
+app.delete('/deleteUserData', (req, res) => {
+	User.deleteMany({}, (err, resultRes) => {
+		if(err) return res.internal({errors:err.errors, message: err.message});
+		return res.success({message: "Delete All User Data"});
+	});
+});
+
+app.delete('/deleteItemData', (req, res) => {
+	Item.deleteMany({}, (err, resultRes) => {
+		if(err) return res.internal({errors: err.errors, message: err.message});
+		return res.success({message: "Delete All ItemData"});
+	});
 });
 
 const port = process.env.PORT || 3000;

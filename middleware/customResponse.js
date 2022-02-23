@@ -32,6 +32,11 @@ const customResponse = (req, res, next) => {
         return res.status(400).error({ errors, code, message, result })
     }
 
+    res.accdenial = function({errors={}, code=401, message="Access Denied", result={}}) {
+        return res.status(400).error({ errors, code, message, result })
+    }
+
+
     /**
      * (status 403)
      * Forbidden request response

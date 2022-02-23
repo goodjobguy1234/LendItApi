@@ -5,6 +5,8 @@ var Item = require("../db/models/items");
 var User = require('../db/models/users');
 var Transaction = require('../db/models/transactions');
 var Borrow = require('../db/models/borrows');
+// const { verify } = require("jsonwebtoken");
+const verify = require('../middleware/tokenVerify');
 
 /**
  * @swagger
@@ -60,6 +62,12 @@ var Borrow = require('../db/models/borrows');
  *   summary: get all avaliable item or get user's item
  *   description: get all avaliable item data for show in the dash board or get all posted user item.
  *   parameters:
+ *     - in: header
+ *       name: auth-token
+ *       schema:
+ *         type: string
+ *         format: uuid
+ *       required: true
  *     - in: query
  *       name: userId
  *       schema:
@@ -86,8 +94,8 @@ var Borrow = require('../db/models/borrows');
  *                      type: string    
  * 
  */
-router.get("/", (req, res) => {
-    const userId= req.query.userId;
+router.get("/", verify, (req, res) => {
+    const userId = req.query.userId;
     if(userId === undefined) {
         Item.find({}, (err, resultRes) => {
             if(err) return res.error({errors: err.errors, result: resultRes, message: err.message});
@@ -142,7 +150,7 @@ router.get("/", (req, res) => {
  *       404:
  *         description: The Item was not found
  */
-router.get("/:id", (req, res) => {
+router.get("/:id",(req, res) => {
     const id = req.params.id;
 
     Item.findOne({_id: id}, (err, resultRes) => {
@@ -152,7 +160,6 @@ router.get("/:id", (req, res) => {
 });
 
 
-
 /**
  * @swagger
  * /items:
@@ -160,6 +167,13 @@ router.get("/:id", (req, res) => {
  *      summary: create Item
  *      description: create item for others to borrowing
  *      tags: [Items]
+ *      parameters:
+ *          - in: header
+ *            name: auth-token
+ *            schema:
+ *              type: string
+ *              format: uuid
+ *            required: true
  *      requestBody:
  *          required: true
  *          content:
@@ -181,14 +195,18 @@ router.get("/:id", (req, res) => {
  *                              message:
  *                                  type: string
  */
-router.post("/", (req, res) => {
+router.post("/", verify, (req, res) => {
     const itemData = req.body;
-
-    const newItem = new Item({...itemData});
-    newItem.save((err, newInstance) => {
-        if(err) return res.internal({errors: err.errors, message: err.message});
-        return res.success({result:newInstance, message: "create item success"});
-    })
+    if(itemData.ownerID == req.user._id) {
+        const newItem = new Item({...itemData});
+        newItem.save((err, newInstance) => {
+            if(err) return res.internal({errors: err.errors, message: err.message});
+            return res.success({result:newInstance, message: "create item success"});
+        });
+    } else {
+        return res.badreq({message: "Cannot create different between ownerID and student's id"});
+    }
+   
 });
 
 /**
@@ -198,27 +216,34 @@ router.post("/", (req, res) => {
  *     summary: Remove item
  *     tags: [Items]
  *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The item's id
+ *          - in: header
+ *            name: auth-token
+ *            schema:
+ *              type: string
+ *              format: uuid
+ *            required: true
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *            description: The item's id
  *     responses:
  *       200:
  *         description: deleted success
  *       404:
  *         description: item not found
  */
-router.delete('/:itemID', (req, res) => {
+router.delete('/:itemID', verify, (req, res) => {
     const {itemID} = req.params;
+    
     Item.findOneAndDelete({"_id": itemID}, (err, deleteResult) => {
         if(err) return res.error({errors:err.errors, message: err.message});
         if(!deleteResult) {
             return res.notfound({message: "item not found"});
         }
         return res.success({message: "deleted success"});
-    })
+    });
 });
 
 /**
@@ -228,6 +253,12 @@ router.delete('/:itemID', (req, res) => {
  *    summary: Update the item by the id
  *    tags: [Items]
  *    parameters:
+ *      - in: header
+ *        name: auth-token
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
  *      - in: path
  *        name: id
  *        schema:
@@ -246,13 +277,22 @@ router.delete('/:itemID', (req, res) => {
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/Item'
+ *              type: object
+ *              properties:
+ *                  result:
+ *                      $ref: '#/components/schemas/Item'
+ *                  code:
+ *                      type: integer
+ *                      example: 200
+ *                  message:
+ *                      type: string
+ *                      example: update item success
  *      404:
  *        description: The book was not found
  *      500:
  *        description: Some error happened
  */
-router.put('/:itemId', (req, res) => {
+router.put('/:itemId', verify,(req, res) => {
     const {itemId} = req.params;
     const updatedItem = req.body;
     Borrow.deleteMany({itemID: itemId}).exec().then(() => {

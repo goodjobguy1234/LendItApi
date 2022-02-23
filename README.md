@@ -24,7 +24,7 @@ The features according to the following:
 
 
 # Api list
-## Item Api
+## Item API
 
 `GET /items` 
 
@@ -32,13 +32,13 @@ The features according to the following:
 
 `GET /items/id`
 
-`GET /items/?catagory?name?price?rateType`
+`GET /items/?`
 
 `PUT /items/id`
 
 `DELETE /items/id`
 
-## Users Api 
+## Users API
 `POST /users`
 
 `GET /users`
@@ -47,7 +47,7 @@ The features according to the following:
 
 `PUT /users/id`
  
-
+## Borrow API
 
 ## Transaction
 `POST /transactions`
@@ -56,6 +56,7 @@ The features according to the following:
  
 `GET /transactions` need body user id to get all transaction of that user
 
+## Auth
 
 ****
 for more API's information https://lent-it-api.herokuapp.com/api-docs/

@@ -6,6 +6,7 @@ const { body, validationResult, oneOf, check, param} = require('express-validato
 require('../utility/util');
 const { isUserExist } = require("../utility/util");
 var Item = require('../db/models/items');
+const verify = require('../middleware/tokenVerify');
 
 /**
  * @swagger
@@ -47,6 +48,13 @@ var Item = require('../db/models/items');
  *      summary: create Transaction
  *      description: after lender accept borrow request please fire this api
  *      tags: [Transactions]
+ *      parameters:
+ *       - in: header
+ *         name: auth-token
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
  *      requestBody:
  *          required: true
  *          content:
@@ -64,11 +72,13 @@ var Item = require('../db/models/items');
  *                              result:
  *                                  $ref: '#/components/schemas/Transaction'
  *                              code:
- *                                  type: integer  
+ *                                  type: integer
+ *                                  example: 200
  *                              message:
  *                                  type: string
+ *                                  example: create transaction successful
  */
-router.post('/', (req,res) => {
+router.post('/', verify, (req,res) => {
     const body = req.body;
     const newTransaction = new Transaction({...(body)});
     newTransaction.save((err, result) => {
@@ -85,6 +95,13 @@ router.post('/', (req,res) => {
  *   get:
  *     summary: get all transaction
  *     tags: [Transactions]
+ *     parameters:
+ *       - in: header
+ *         name: auth-token
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
  *     responses:
  *       200:
  *         description: all transaction or all user transaction retrieve
@@ -99,8 +116,10 @@ router.post('/', (req,res) => {
  *                          $ref: '#/components/schemas/Transaction'
  *                    code:
  *                        type: integer
+ *                        example: 200
  *                    message:
  *                        type: string  
+ *                        example: retrieve users transaction
  *       400:
  *         description: error from bad request
  */
@@ -112,6 +131,12 @@ router.post('/', (req,res) => {
  *     summary: get current user transaction
  *     tags: [Transactions]
  *     parameters:
+ *       - in: header
+ *         name: auth-token
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
  *       - in: path
  *         name: userId
  *         schema:
@@ -132,13 +157,15 @@ router.post('/', (req,res) => {
  *                          $ref: '#/components/schemas/Transaction'
  *                    code:
  *                        type: integer
+ *                        example: 200
  *                    message:
  *                        type: string  
+ *                        example: retrieve all users transactions
  *       400:
  *         description: error from bad request
  */
 // get transaction of that user
-router.get('/:userId?', (req, res) => {
+router.get('/:userId?', verify, (req, res) => {
     if(req.params.userId !== undefined) {
         isUserExist(req, res, () => {
             Transaction.find({}).populate({
@@ -178,6 +205,12 @@ router.get('/:userId?', (req, res) => {
  *     summary: update transaction return status
  *     tags: [Transactions]
  *     parameters:
+ *       - in: header
+ *         name: auth-token
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
  *       - in: path
  *         name: id
  *         schema:
@@ -195,7 +228,7 @@ router.get('/:userId?', (req, res) => {
 
 //update transaction status to complete
 // after user return and that lender accept
-router.patch('/:id', (req,res) => {
+router.patch('/:id', verify, (req,res) => {
     Transaction.findByIdAndUpdate(req.params.id, {returnStatus: true}, {new: true}, (err, doc) => {
         if(!doc) return res.notfound({message: "Transaction is not found"});
         if(err) return res.badreq({errors:err.errors, message: err.message});

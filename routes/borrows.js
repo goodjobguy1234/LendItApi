@@ -6,6 +6,7 @@ const Item = require('../db/models/items');
 
 const { body, validationResult, oneOf, check, param} = require('express-validator');
 const {isUserExist} = require('../utility/util');
+const verify = require('../middleware/tokenVerify');
 
 /**
  * @swagger
@@ -40,6 +41,7 @@ const {isUserExist} = require('../utility/util');
  *              borrowerID: 6110155
  *              lenderID: 6210015
  *              borrowDuration: 1
+ *              pendingStat: false
  *              
  */
 
@@ -58,6 +60,12 @@ const {isUserExist} = require('../utility/util');
  *     summary: Get borrow of that user
  *     tags: [Borrows]
  *     parameters:
+ *       - in: header
+ *         name: auth-token
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
  *       - in: query
  *         name: userId
  *         schema:
@@ -76,12 +84,14 @@ const {isUserExist} = require('../utility/util');
  *                        $ref: '#/components/schemas/Borrow'
  *                    code:
  *                        type: integer
+ *                        example: 200
  *                    message:
  *                        type: string  
+ *                        example: retrieve all user's borrower from 6210015 success
  *       400:
  *         description: error from bad request
  */
-router.get('/borrower', (req, res) => {
+router.get('/borrower', verify,(req, res) => {
     isUserExist(req, res, () => {
         Borrow.find({borrowerID: req.query.userId}, (err, resultRes) => {
             if(err) return res.badreq({errors:err.errors, message: err.message, result: result});
@@ -97,6 +107,12 @@ router.get('/borrower', (req, res) => {
  *     summary: information who you lend item to
  *     tags: [Borrows]
  *     parameters:
+ *       - in: header
+ *         name: auth-token
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
  *       - in: query
  *         name: userId
  *         schema:
@@ -115,12 +131,14 @@ router.get('/borrower', (req, res) => {
  *                        $ref: '#/components/schemas/Borrow'
  *                    code:
  *                        type: integer
+ *                        example: 200
  *                    message:
- *                        type: string  
+ *                        type: string
+ *                        example: retrieve all user's lenderID from 6210015 success
  *       400:
  *         description: error from bad request
  */
-router.get('/lender', (req, res) => {
+router.get('/lender', verify, (req, res) => {
     const userId = req.query.userId;
     isUserExist(req, res, () => {
         Borrow.find({lenderID: req.query.userId}, (err, resultRes) => {
@@ -137,6 +155,13 @@ router.get('/lender', (req, res) => {
  *      summary: create Borrow
  *      description: when user click to borrow smt
  *      tags: [Borrows]
+ *      parameters:
+ *      - in: header
+ *        name: auth-token
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
  *      requestBody:
  *          required: true
  *          content:
@@ -155,10 +180,12 @@ router.get('/lender', (req, res) => {
  *                                  $ref: '#/components/schemas/Borrow'
  *                              code:
  *                                  type: integer  
+ *                                  example: 200
  *                              message:
  *                                  type: string
+ *                                  example: request borrow success
  */
-router.post('/create-borrow', (req, res) => {
+router.post('/create-borrow', verify,  (req, res) => {
     Item.findById({_id: req.body.itemID},(err, item) => {
         if(!item) return res.notfound({message: "item not found"});
         if(err) return res.badreq({errors:err.errors, meesage: err.meesage});
@@ -188,6 +215,13 @@ router.post('/create-borrow', (req, res) => {
  *    summary: update pending status
  *    description: when lender accept borrow request from borrower
  *    tags: [Borrows]
+ *    parameters:
+ *      - in: header
+ *        name: auth-token
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
  *    requestBody:
  *      required: true
  *      content:
@@ -206,7 +240,7 @@ router.post('/create-borrow', (req, res) => {
  *        description: Something went wrong
  */
 //lender accept for borrow --> then create transaction(p.crate by himself)
-router.patch('/lender/accept', (req, res) => {
+router.patch('/lender/accept', verify, (req, res) => {
     const borrowID = req.body.borrowID;
     Borrow.findByIdAndUpdate(borrowID, {pendingStat: true}, {new: true}).exec().then((value) => {
         if(!value) return res.notfound({message: "borrow request not found"})
@@ -241,8 +275,10 @@ router.patch('/lender/accept', (req, res) => {
  *                        $ref: '#/components/schemas/Borrow'
  *                    code:
  *                        type: integer
+ *                        example: 200
  *                    message:
  *                        type: string  
+ *                        example: retrieve detail of borrow request successful
  *       400:
  *         description: error from bad request
  *       404:

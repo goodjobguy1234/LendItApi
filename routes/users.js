@@ -7,6 +7,7 @@ var Borrow = require("../db/models/borrows.js");
 
 const { body, validationResult, oneOf, check, param} = require('express-validator');
 const { isUserExist } = require("../utility/util");
+const verify = require('../middleware/tokenVerify');
 /**
  * @swagger
  * components:
@@ -78,15 +79,17 @@ const { isUserExist } = require("../utility/util");
  *                                  $ref: '#/components/schemas/User'
  *                          code:
  *                              type: integer
+ *                              example: 200
  *                          message:
- *                              type: string   
+ *                              type: string  
+ *                              example: get all users success, use in develop only
  * 
  */
-router.get("/", (req, res) => {
+router.get("/",  (req, res) => {
     User.find({}).select({_id:0, __v:0}).exec((err, resultRes) => {
         if(err) return res.badreq({errors: err.errors, result: resultRes, message: err.message});
-        else return res.success({errors: err, result: resultRes, message: "get all users success"});
-    })
+        else return res.success({errors: err, result: resultRes, message: "get all users success, use in develop only"});
+    });
 });
 
 /**
@@ -96,6 +99,12 @@ router.get("/", (req, res) => {
  *     summary: Get the user profile by their student id
  *     tags: [Users]
  *     parameters:
+ *       - in: header
+ *         name: auth-token
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
  *       - in: path
  *         name: userId
  *         schema:
@@ -114,18 +123,26 @@ router.get("/", (req, res) => {
  *                           $ref: '#/components/schemas/User'
  *                      code:
  *                          type: integer
+ *                          example: 200
  *                      message:
  *                          type: string 
+ *                          example: get profile success
  *                 
  *    
  */
-router.get("/:userId", (req, res) => {
+router.get("/:userId", verify,(req, res) => {
     const userId = req.params.userId;
-    User.findOne({id: userId}).select({_id:0, __v:0}).exec((err, resultRes) => {
-        if(err) return res.badreq({errors: err.errors, result: resultRes, message: err.message});
-        if(!resultRes) return res.notfound({message: "no profile found"});
-        return res.success({errors: err, result: resultRes, message: "get profile success"});
-    });
+
+    if(userId == req.user._id) {
+        User.findOne({id: userId}).select({_id:0, __v:0}).exec((err, resultRes) => {
+            if(err) return res.badreq({errors: err.errors, result: resultRes, message: err.message});
+            if(!resultRes) return res.notfound({message: "no profile found"});
+            return res.success({errors: err, result: resultRes, message: "get profile success"});
+        });
+    } else {
+        return res.badreq({message: "can only access your profile"});
+    }
+ 
 });
 
 /**
@@ -135,6 +152,12 @@ router.get("/:userId", (req, res) => {
  *    summary: Update user profile
  *    tags: [Users]
  *    parameters:
+ *      - in: header
+ *        name: auth-token
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
  *      - in: path
  *        name: userId
  *        schema:
@@ -159,64 +182,35 @@ router.get("/:userId", (req, res) => {
  *      500:
  *        description: Some error happened
  */
-router.put('/:userId',  
+
+//not Test yet new update
+router.put('/:userId',  verify,
     body("id").exists().trim().isString().notEmpty(),
     body("firstname").exists().trim().isString().notEmpty(),
     body('lastname').exists().trim().isString().notEmpty(),
     body('email').exists().isEmail().isString().notEmpty(),
     body('phoneNumber').exists().trim().isString().notEmpty(), async (req, res) => {
-
-    let validate = await validationResult(req);
+    
     const {userId} = req.params;
-    const body = req.body;
-
-    if (!validate.isEmpty()) {
-        return res.badreq({errors: validate.errors, message: "invalid body"});
+    if(req.user._id == userId) {
+        let validate = await validationResult(req);
+    
+        const body = req.body;
+    
+        if (!validate.isEmpty()) {
+            return res.badreq({errors: validate.errors, message: "invalid body"});
+        } else {
+            User.findOneAndUpdate({id: userId}, {...body}, { 
+                new: true
+            }, (err, doc) => {
+                if(!doc) return res.notfound({errors: err, message: "update profile fail"});
+                if(err) return res.internal({errors: err.errors, message: err.message});
+                return res.success({result: doc, message: "update profile success"});
+            });
+        }
     } else {
-        User.findOneAndUpdate({id: userId}, {...body}, { 
-            new: true
-        }, (err, doc) => {
-            if(!doc) return res.notfound({errors: err, message: "update profile fail"});
-            if(err) return res.internal({errors: err.errors, message: err.message});
-            return res.success({result: doc, message: "update profile success"});
-        });
+        return res.badreq({message: "Can only update your profile"});
     }
-});
-
-/**
- * @swagger
- * /users:
- *  post:
- *      summary: create new user
- *      description: create new user when register
- *      tags: [Users]
- *      requestBody:
- *          required: true
- *          content:
- *              application/json:
- *                  schema:
- *                      $ref: '#/components/schemas/User'
- *      responses:
- *          200:
- *              description: create user success
- *              content:
- *                  application/json:
- *                      schema:
- *                          type: object
- *                          properties:
- *                              result:
- *                                  $ref: '#/components/schemas/User'
- *                              code:
- *                                  type: integer  
- *                              message:
- *                                  type: string
- */
-router.post('/', (req, res) => {
-    const newUser = new User({...(req.body)});
-    newUser.save((err, newInstance) => {
-        if(err) return res.internal({errors:err.errors, message: err.message});
-        return res.success({result: newInstance, message: "create new user success"});
-    });    
 });
 
 module.exports = router;

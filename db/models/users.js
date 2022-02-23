@@ -11,7 +11,8 @@ var UserSchema = new Schema({
   email: {type: String, default: ""},
   phoneNumber: {type: String, required: true},
   dormLocation: {type: String, required: true},
-  imageURL: {type: String, default: null}
+  imageURL: {type: String, default: null},
+  password: {type: String, required: true}
 });
 
 //Export function to create "CustomerSchema" model class
