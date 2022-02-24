@@ -66,7 +66,6 @@ const verify = require('../middleware/tokenVerify');
  *       name: auth-token
  *       schema:
  *         type: string
- *         format: uuid
  *       required: true
  *     - in: query
  *       name: userId
@@ -172,7 +171,6 @@ router.get("/:id",(req, res) => {
  *            name: auth-token
  *            schema:
  *              type: string
- *              format: uuid
  *            required: true
  *      requestBody:
  *          required: true
@@ -220,7 +218,6 @@ router.post("/", verify, (req, res) => {
  *            name: auth-token
  *            schema:
  *              type: string
- *              format: uuid
  *            required: true
  *          - in: path
  *            name: id
@@ -257,7 +254,6 @@ router.delete('/:itemID', verify, (req, res) => {
  *        name: auth-token
  *        schema:
  *          type: string
- *          format: uuid
  *        required: true
  *      - in: path
  *        name: id

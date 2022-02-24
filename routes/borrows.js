@@ -64,7 +64,6 @@ const verify = require('../middleware/tokenVerify');
  *         name: auth-token
  *         schema:
  *           type: string
- *           format: uuid
  *         required: true
  *       - in: query
  *         name: userId
@@ -111,7 +110,6 @@ router.get('/borrower', verify,(req, res) => {
  *         name: auth-token
  *         schema:
  *           type: string
- *           format: uuid
  *         required: true
  *       - in: query
  *         name: userId
@@ -160,7 +158,6 @@ router.get('/lender', verify, (req, res) => {
  *        name: auth-token
  *        schema:
  *          type: string
- *          format: uuid
  *        required: true
  *      requestBody:
  *          required: true
@@ -220,7 +217,6 @@ router.post('/create-borrow', verify,  (req, res) => {
  *        name: auth-token
  *        schema:
  *          type: string
- *          format: uuid
  *        required: true
  *    requestBody:
  *      required: true

@@ -103,7 +103,6 @@ router.get("/",  (req, res) => {
  *         name: auth-token
  *         schema:
  *           type: string
- *           format: uuid
  *         required: true
  *       - in: path
  *         name: userId
@@ -156,7 +155,6 @@ router.get("/:userId", verify,(req, res) => {
  *        name: auth-token
  *        schema:
  *          type: string
- *          format: uuid
  *        required: true
  *      - in: path
  *        name: userId
