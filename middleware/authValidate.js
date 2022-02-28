@@ -7,7 +7,9 @@ const registerValidation = (data) => {
         lastname: Joi.string().required(),
         phoneNumber: Joi.string().required(),
         dormLocation: Joi.string().required(),
-        password: Joi.string().min(6).required()
+        password: Joi.string().min(6).required(),
+        email: Joi.string().email(),
+        imageURL: Joi.string()
     });
    return schema.validate(data);
 };
