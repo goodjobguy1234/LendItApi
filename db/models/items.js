@@ -7,11 +7,11 @@ const User = require('./users');
 const validateRef = require("../../middleware/validateRef");
 
 var ItemSchema = new Schema({
-  name: {type: String, required: true},
-  pricePerDay: {type: Number, min: 50, required: true},
+  name: {type: String, required: [true, "Please specify item name"]},
+  pricePerDay: {type: Number, min: [50, "Price must more than 50"], required: [true, "Please specify price"]},
   imageURL: String,
-  ownerID: {type: String, required: true},
-  location: {type: String, required: true},
+  ownerID: {type: String, required: [true, "Please specify owner id"]},
+  location: {type: String, required: [true, "Please specify location"]},
   itemDesciption: String,
   avaliable: {type: Boolean, default: true}
 });

@@ -8,11 +8,11 @@ const Item = require('./items');
 const validateRef = require("../../middleware/validateRef");
 
 var BorrowSchema = new Schema({ 
-    itemID: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Items'},
-    borrowerID: {type: String, required: true},
-    lenderID: {type: String, required: true},
+    itemID: {type: mongoose.Schema.Types.ObjectId, required: [true, "Please specify item id"], ref: 'Items'},
+    borrowerID: {type: String, required: [true, "Please specify borrower id"]},
+    lenderID: {type: String, required: [true, "Please specify lender id"]},
     pendingStat: {type: Boolean, default: false},
-    borrowDuration: {type: Number, required: true, min: 1}
+    borrowDuration: {type: Number, required: [true, "Please specify borrow duration"], min: [1, "minimum borrow duration is 1"]}
   });
 
 const BorrowModel = mongoose.model("Borrows", BorrowSchema, "borrows", { strict: true });
