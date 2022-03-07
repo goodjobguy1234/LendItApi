@@ -6,6 +6,7 @@ const { body, validationResult, oneOf, check, param} = require('express-validato
 require('../utility/util');
 const { isUserExist } = require("../utility/util");
 var Item = require('../db/models/items');
+var Borrow = require('../db/models/borrows');
 const verify = require('../middleware/tokenVerify');
 
 /**
@@ -229,11 +230,13 @@ router.patch('/:id', verify, (req,res) => {
         if(!doc) return res.notfound({message: "Transaction is not found"});
         if(err) return res.badreq({errors:err.errors, message: err.message});
 
-        Item.findByIdAndUpdate(doc.itemID, {avaliable: true}, {new: true}).exec().then((value) => {
-            if (!value) return res.internal({message: "cannot update item avaliable status"});
-            return res.success({message: "Trabsaction is complete, user have return the item"});
-        }).catch((err) => {
-            return res.internal({errors: err.errors, message: err.message});
+        Borrow.findById(doc.borrowID, (err, res) => {
+            Item.findByIdAndUpdate(res.itemID, {avaliable: true}, {new: true}).exec().then((value) => {
+                if (!value) return res.internal({message: "cannot update item avaliable status"});
+                return res.success({message: "Trabsaction is complete, user have return the item"});
+            }).catch((err) => {
+                return res.internal({errors: err.errors, message: err.message});
+            });
         });
     });
 });
