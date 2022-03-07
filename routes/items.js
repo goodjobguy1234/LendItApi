@@ -57,9 +57,42 @@ const verify = require('../middleware/tokenVerify');
 
 /**
  * @swagger
+ * /items:
+ *  get:
+ *   summary: get all avaliable item
+ *   description: get all avaliable item data for show in the dash board or get all posted user item.
+ *   parameters:
+ *     - in: header
+ *       name: auth-token
+ *       schema:
+ *         type: string
+ *       required: true
+ *          
+ *   tags: [Items]
+ *   responses:
+ *    200:
+ *     description: A successful response
+ *     content:
+ *      application/json:
+ *          schema:
+ *              type: object
+ *              properties:
+ *                  result:
+ *                      type: array
+ *                      items:
+ *                          $ref: '#/components/schemas/Item'
+ *                  code:
+ *                      type: integer
+ *                  message:
+ *                      type: string    
+ * 
+ */
+
+/**
+ * @swagger
  * /items?userId=6210015:
  *  get:
- *   summary: get all avaliable item or get user's item
+ *   summary: get user's item
  *   description: get all avaliable item data for show in the dash board or get all posted user item.
  *   parameters:
  *     - in: header
@@ -71,7 +104,7 @@ const verify = require('../middleware/tokenVerify');
  *       name: userId
  *       schema:
  *          type: string
- *       required: false
+ *       required: true
  *       description: user id string to get all posted item of specific user.
  *          
  *   tags: [Items]
