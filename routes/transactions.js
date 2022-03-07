@@ -229,7 +229,8 @@ router.patch('/:id', verify, (req,res) => {
         if(!doc) return res.notfound({message: "Transaction is not found"});
         if(err) return res.badreq({errors:err.errors, message: err.message});
 
-        Item.findByIdAndUpdate(doc.itemID, {avaliable: true}).exec().then(() => {
+        Item.findByIdAndUpdate(doc.itemID, {avaliable: true}, {new: true}).exec().then((value) => {
+            if (!value) return res.internal({message: "cannot update item avaliable status"});
             return res.success({message: "Trabsaction is complete, user have return the item"});
         }).catch((err) => {
             return res.internal({errors: err.errors, message: err.message});
