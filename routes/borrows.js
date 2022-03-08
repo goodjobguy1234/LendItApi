@@ -93,8 +93,12 @@ const userVerify = require('../middleware/userAccessVerify');
  */
 router.get('/borrower', verify,(req, res) => {
     isUserExist(req, res, () => {
-        Borrow.find({borrowerID: req.query.userId}, (err, resultRes) => {
-            if(err) return res.badreq({errors:err.errors, message: err.message, result: result});
+        Borrow.find({borrowerID: req.query.userId}).populate({
+            path: 'itemID',
+            model: "Items",
+            select: 'name imageURK'
+        }).exec((err, resultRes) => {
+            if(err) return res.badreq({errors:err.errors, message: err.message, result: resultRes});
             return res.success({message: `retrieve all user's borrower from ${req.query.userId} success`, result: resultRes});
         });
     });
@@ -140,7 +144,11 @@ router.get('/borrower', verify,(req, res) => {
 router.get('/lender', verify, (req, res) => {
     const userId = req.query.userId;
     isUserExist(req, res, () => {
-        Borrow.find({lenderID: req.query.userId}, (err, resultRes) => {
+        Borrow.find({lenderID: req.query.userId}).populate({
+            path: 'itemID',
+            model: "Items",
+            select: 'name imageURK'
+        }).exec((err, resultRes) => {
             if(err) return res.badreq({errors:err.errors, message: err.message, result: result});
             return res.success({message: `retrieve all user's lenderID from ${req.query.userId} success`, result: resultRes});
         });
