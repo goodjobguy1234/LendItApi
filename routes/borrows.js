@@ -253,7 +253,7 @@ router.patch('/lender/accept', verify,(req, res) => {
                 return res.badreq({errors:err.meesage, message: err.message});
             })
         } else {
-            return res.forbidden({message: "This user don't have authorize to change status"});
+            return res.unauth({message: "This user don't have authorize to change status"});
         }
     }).catch(err => {
         return res.badreq({errors:err.meesage, message: err.message});

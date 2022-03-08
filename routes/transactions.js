@@ -227,18 +227,39 @@ router.get('/:userId?', verify, (req, res) => {
 // after user return and that lender accept
 router.patch('/:id', verify, (req,res) => {
 
-    Transaction.findByIdAndUpdate(req.params.id, {returnStatus: true}, {new: true}, (err, doc) => {
-        if(!doc) return res.notfound({message: "Transaction is not found"});
-        if(err) return res.badreq({errors:err.errors, message: err.message});
+    // Transaction.findByIdAndUpdate(req.params.id, {returnStatus: true}, {new: true}, (err, doc) => {
+    //     if(!doc) return res.notfound({message: "Transaction is not found"});
+    //     if(err) return res.badreq({errors:err.errors, message: err.message});
         
-        Borrow.findById(doc.borrowID, (err, resResult) => {
-            Item.findByIdAndUpdate(resResult.itemID, {avaliable: true}, {new: true}).exec().then((value) => {
-                if (!value) return res.internal({message: "cannot update item avaliable status"});
-                return res.success({message: "Trabsaction is complete, user have return the item"});
-            }).catch((err) => {
-                return res.internal({errors: err.errors, message: err.message});
+    //     Borrow.findById(doc.borrowID, (err, resResult) => {
+    //         Item.findByIdAndUpdate(resResult.itemID, {avaliable: true}, {new: true}).exec().then((value) => {
+    //             if (!value) return res.internal({message: "cannot update item avaliable status"});
+    //             return res.success({message: "Trabsaction is complete, user have return the item"});
+    //         }).catch((err) => {
+    //             return res.internal({errors: err.errors, message: err.message});
+    //         });
+    //     });
+    // });
+    Transaction.findById(req.params.id).exec().then(doc => {
+      if(!doc) return res.notfound({message: "Transaction is not found"});
+      Borrow.findById(doc.borrowID).exec().then(resResult => {
+          if(resResult.borrowerID == req.user._id) {
+            Item.findById(resResult.itemID).exec().then(async (itemValue) => {
+                if(!itemValue) return res.internal({message: "cannot update item avaliable status"});
+                else {
+                    doc.returnStatus = true;
+                    await doc.save();
+                    itemValue.avaliable = true;
+                    await itemValue.save();
+                    return res.success({message: "Trabsaction is complete, user have return the item"});
+                }
+            }).catch(err => {
+                res.badreq({errors: err.errors, message: err.message});
             });
-        });
+          } else {
+              return res.unauth({message: "This user don't have authorize to change status"})
+          }
+      });
     });
 });
 
