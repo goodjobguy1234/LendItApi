@@ -182,6 +182,7 @@ router.get('/lender', verify, (req, res) => {
  *                                  type: string
  *                                  example: request borrow success
  */
+
 router.post('/create-borrow', verify,  (req, res) => {
     Item.findById({_id: req.body.itemID},(err, item) => {
         if(!item) return res.notfound({message: "item not found"});
@@ -189,13 +190,16 @@ router.post('/create-borrow', verify,  (req, res) => {
         console.log(item)
         if(item.ownerID == req.body.lenderID && item.avaliable == true) {
             const newBorrow = new Borrow({...req.body});
-            newBorrow.save((err, resultRes) => {
+            console.log(newBorrow);
+            newBorrow.save().then((resultRes) => {
                 item.avaliable = false;
                 item.save((err, result) => {
                     if(err) return res.internal({errors: err.errors, meesage: err.meesage});
                     return res.success({result: resultRes, message: "request borrow success"});
                 });
-            });
+            }).catch(err => {
+                return res.internal({message: err.meesage, errors: err.errors})
+            })
         } else if (item.ownerID != req.body.lenderID){
             return res.badreq({message: "the owner id different person"});
         } else {

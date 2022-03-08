@@ -65,7 +65,7 @@ const customResponse = (req, res, next) => {
         return res.status(500).error({ errors, code, message, result })
     }
 
-    next()
+    next();
 }
 
 

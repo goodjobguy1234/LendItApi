@@ -229,7 +229,7 @@ router.patch('/:id', verify, (req,res) => {
     Transaction.findByIdAndUpdate(req.params.id, {returnStatus: true}, {new: true}, (err, doc) => {
         if(!doc) return res.notfound({message: "Transaction is not found"});
         if(err) return res.badreq({errors:err.errors, message: err.message});
-
+        
         Borrow.findById(doc.borrowID, (err, resResult) => {
             Item.findByIdAndUpdate(resResult.itemID, {avaliable: true}, {new: true}).exec().then((value) => {
                 if (!value) return res.internal({message: "cannot update item avaliable status"});
