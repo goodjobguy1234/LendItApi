@@ -7,6 +7,7 @@ const Item = require('../db/models/items');
 const { body, validationResult, oneOf, check, param} = require('express-validator');
 const {isUserExist} = require('../utility/util');
 const verify = require('../middleware/tokenVerify');
+const userVerify = require('../middleware/userAccessVerify');
 
 /**
  * @swagger
@@ -240,14 +241,29 @@ router.post('/create-borrow', verify,  (req, res) => {
  *        description: Something went wrong
  */
 //lender accept for borrow --> then create transaction(p.crate by himself)
-router.patch('/lender/accept', verify, (req, res) => {
+router.patch('/lender/accept', verify,(req, res) => {
     const borrowID = req.body.borrowID;
-    Borrow.findByIdAndUpdate(borrowID, {pendingStat: true}, {new: true}).exec().then((value) => {
-        if(!value) return res.notfound({message: "borrow request not found"})
-        return res.success({message: "borrow request accepted"});
-    }).catch((err) => {
+    Borrow.findById(borrowID).exec().then(borrowItem => {
+        if(req.user._id == borrowItem.lenderID) {
+            borrowItem.pendingStat = true;
+            borrowItem.save().then(saveResult => {
+                if(!saveResult) return res.internal({message: "cannot update borrow status"});
+                return res.success({message: "borrow request accepted"});
+            }).catch(err => {
+                return res.badreq({errors:err.meesage, message: err.message});
+            })
+        } else {
+            return res.forbidden({message: "This user don't have authorize to change status"});
+        }
+    }).catch(err => {
         return res.badreq({errors:err.meesage, message: err.message});
-    })
+    });
+    // Borrow.findByIdAndUpdate(borrowID, {pendingStat: true}, {new: true}).exec().then((value) => {
+    //     if(!value) return res.notfound({message: "borrow request not found"})
+    //     return res.success({message: "borrow request accepted"});
+    // }).catch((err) => {
+    //     return res.badreq({errors:err.meesage, message: err.message});
+    // });
 });
 
 /**

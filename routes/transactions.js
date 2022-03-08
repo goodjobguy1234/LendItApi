@@ -226,6 +226,7 @@ router.get('/:userId?', verify, (req, res) => {
 //update transaction status to complete
 // after user return and that lender accept
 router.patch('/:id', verify, (req,res) => {
+
     Transaction.findByIdAndUpdate(req.params.id, {returnStatus: true}, {new: true}, (err, doc) => {
         if(!doc) return res.notfound({message: "Transaction is not found"});
         if(err) return res.badreq({errors:err.errors, message: err.message});
@@ -276,7 +277,12 @@ router.get('/detail/:id', (req, res) => {
     Transaction.findById(req.params.id)
     .populate({
         path: 'borrowID',
-        model: "Borrows"}).exec((err, resultRes) => {
+        model: "Borrows",
+        populate: {
+            path: 'itemID',
+            model: "Items"
+        }
+    }).exec((err, resultRes) => {
             if(err) return res.internal({errors:err.errors, message: err.message});
             if(!resultRes) return res.notfound({message: "transaction not found"});
             return res.success({result: resultRes, message: "retrieve transaction detail success"});
