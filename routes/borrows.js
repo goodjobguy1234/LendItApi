@@ -352,9 +352,14 @@ router.delete('/:id', verify, (req, res) => {
     Borrow.findById(req.params.id).exec().then(value => {
         if(!value) return res.notfound({message: `not found borrow request id ${req.params.id}`});
         if(req.user._id == value.lenderID) {
-            value.delete().then(() => {
-                return res.success({message: "borrow request declined"});
-            });
+            Item.findById(value.itemID).exec().then((item) => {
+                item.avaliable = true;
+                item.save().then(() => {
+                    value.delete().then(() => {
+                        return res.success({message: "borrow request declined"});
+                    });
+                });
+            }); 
         } else {
             return res.unauth({message: `This ${req.params.id} don't have permission to decline this borrow request`});
         }
