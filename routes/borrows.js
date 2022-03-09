@@ -96,7 +96,7 @@ router.get('/borrower', verify,(req, res) => {
         Borrow.find({borrowerID: req.query.userId}).populate({
             path: 'itemID',
             model: "Items",
-            select: 'name imageURL -_id'
+            select: 'name imageURL pricePerDay -_id'
         }).exec((err, resultRes) => {
             if(err) return res.badreq({errors:err.errors, message: err.message, result: resultRes});
             return res.success({message: `retrieve all user's borrower from ${req.query.userId} success`, result: resultRes});
@@ -147,7 +147,7 @@ router.get('/lender', verify, (req, res) => {
         Borrow.find({lenderID: req.query.userId}).populate({
             path: 'itemID',
             model: "Items",
-            select: 'name imageURL -_id'
+            select: 'name imageURL pricePerDay -_id'
         }).exec((err, resultRes) => {
             if(err) return res.badreq({errors:err.errors, message: err.message, result: result});
             return res.success({message: `retrieve all user's lenderID from ${req.query.userId} success`, result: resultRes});
@@ -318,6 +318,54 @@ router.get('/:id', (req, res) => {
         if(!resultRes) return res.notfound({message: "borrow request not found"});
         return res.success({result: resultRes, message: "retrieve detail of borrow request successful"});
     });
+});
+
+/**
+ * @swagger
+ * /borrows/{id}:
+ *   delete:
+ *     summary: Remove borrow request
+ *     tags: [Borrows]
+ *     parameters:
+ *          - in: header
+ *            name: auth-token
+ *            schema:
+ *              type: string
+ *            required: true
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *            description: The item's id
+ *     responses:
+ *       200:
+ *         description: borrow request declined
+ *       404:
+ *         description: not found this borrow request
+ *       401:
+ *         description: this user don't have permission to decline this borrow request
+ *       500:
+ *         description: something went wrong
+ */
+router.delete('/:id', verify, (req, res) => {
+    Borrow.findById(req.params.id).exec().then(value => {
+        if(!value) return res.notfound({message: `not found borrow request id ${req.params.id}`});
+        if(req.user._id == value.lenderID) {
+            Item.findById(value.itemID).exec().then((item) => {
+                item.avaliable = true;
+                item.save().then(() => {
+                    value.delete().then(() => {
+                        return res.success({message: "borrow request declined"});
+                    });
+                });
+            }); 
+        } else {
+            return res.unauth({message: `This ${req.params.id} don't have permission to decline this borrow request`});
+        }
+    }).catch(err => {
+        return res.internal({errors: err.errors, message: err.meesage});
+    })
 });
 
 module.exports = router;

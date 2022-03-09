@@ -86,7 +86,7 @@ const verify = require('../middleware/tokenVerify');
  * 
  */
 router.get("/",  (req, res) => {
-    User.find({}).select({_id:0, __v:0}).exec((err, resultRes) => {
+    User.find({}).select({_id:0, __v:0, password:0}).exec((err, resultRes) => {
         if(err) return res.badreq({errors: err.errors, result: resultRes, message: err.message});
         else return res.success({errors: err, result: resultRes, message: "get all users success, use in develop only"});
     });
@@ -133,7 +133,7 @@ router.get("/:userId", verify,(req, res) => {
     const userId = req.params.userId;
 
     if(userId == req.user._id) {
-        User.findOne({id: userId}).select({_id:0, __v:0}).exec((err, resultRes) => {
+        User.findOne({id: userId}).select({_id:0, __v:0, password:0}).exec((err, resultRes) => {
             if(err) return res.badreq({errors: err.errors, result: resultRes, message: err.message});
             if(!resultRes) return res.notfound({message: "no profile found"});
             return res.success({errors: err, result: resultRes, message: "get profile success"});
