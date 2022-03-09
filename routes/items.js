@@ -5,7 +5,7 @@ var Item = require("../db/models/items");
 var User = require('../db/models/users');
 var Transaction = require('../db/models/transactions');
 var Borrow = require('../db/models/borrows');
-// const { verify } = require("jsonwebtoken");
+
 const verify = require('../middleware/tokenVerify');
 
 /**
