@@ -348,6 +348,8 @@ router.get('/:id', (req, res) => {
  *       500:
  *         description: something went wrong
  */
+
+//call after update transaction complete or call when decline the borrow request
 router.delete('/:id', verify, (req, res) => {
     Borrow.findById(req.params.id).exec().then(value => {
         if(!value) return res.notfound({message: `not found borrow request id ${req.params.id}`});
