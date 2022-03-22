@@ -61,7 +61,7 @@ const customResponse = (req, res, next) => {
      * (status 500)
      * Internal request response
      */
-    res.internal = function({errors={}, code=500, message="", result={}}) {
+    res.internal = function({errors={}, code=500, message="Something went wrong", result={}}) {
         return res.status(500).error({ errors, code, message, result })
     }
 
