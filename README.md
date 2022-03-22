@@ -9,10 +9,12 @@ An api for lend or borrow item in the university dorm. this is final project for
 # How To Get Start
 
 ## Install
-Clone the project and run `npm install` to install dependencies
+Clone the project and run `npm install` or run `yarn` to install dependencies.
 
 ## Run the App
-    npm start
+    npm start (for npm)
+
+    yarn start (for yarn)
 
 
 # Features
@@ -30,35 +32,54 @@ The features according to the following:
 
 `POST /items`
 
-`GET /items/id`
+`GET /items/:id`
 
-`GET /items/?`
+`GET /items/?userId={studentID}`
 
-`PUT /items/id`
+`PUT /items/:id`
 
-`DELETE /items/id`
+`DELETE /items/:id`
 
 ## Users API
-`POST /users`
 
 `GET /users`
 
-`GET /users/id`
+`GET /users/:studentID`
 
-`PUT /users/id`
+`PUT /users/:studentID`
  
 ## Borrow API
+`POST /borrows/create-borrow`
+
+`PATCH /borrows/lender/accept`
+ 
+`GET /borrows/:id` 
+
+`GET /borrows/lender?userId={userid}`
+
+`GET /borrows/borrower?userId={userid}`
+
+`DELETE /borrows/:id`
 
 ## Transaction
+`GET /transactions` 
+
+`GET /transactions/:id`
+
+`GET /transactions/detail/:id`
+
 `POST /transactions`
 
-`PUT /transactions/id`
+`PATCH /transactions/:id`
  
-`GET /transactions` need body user id to get all transaction of that user
 
 ## Auth
+`POST /auth/register`
 
-****
+`POST /auth/login`
+ 
+
+---
 for more API's information https://lent-it-api.herokuapp.com/api-docs/
 
 

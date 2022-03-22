@@ -267,12 +267,29 @@ router.post("/", verify, (req, res) => {
 router.delete('/:itemID', verify, (req, res) => {
     const {itemID} = req.params;
     
-    Item.findOneAndDelete({"_id": itemID}, (err, deleteResult) => {
-        if(err) return res.error({errors:err.errors, message: err.message});
-        if(!deleteResult) {
-            return res.notfound({message: "item not found"});
-        }
-        return res.success({message: "deleted success"});
+    // Item.findOneAndDelete({"_id": itemID}, (err, deleteResult) => {
+    //     if(err) return res.error({errors:err.errors, message: err.message});
+    //     if(!deleteResult) {
+    //         return res.notfound({message: "item not found"});
+    //     }
+    //     return res.success({message: "deleted success"});
+    // });
+    Item.findById(itemID).exec().then(value => {
+        if(!value) return res.notfound({message: "item not found"});
+        if(value.ownerID == req.user._id) {
+            Borrow.findOne({itemID: itemID}).exec().then(borrowValue => {
+                if (borrowValue) {
+                    borrowValue.remove();
+                } 
+                value.remove();
+                // delete both item and borrow request
+                return res.success({message: "deleted success"});
+            });
+        } else {
+            return res.unauth({message: "cannot delete item because this user don't have permission"});
+        }   
+    }).catch(err => {
+        return res.error({errors:err.errors, message: err.message});
     });
 });
 
@@ -324,6 +341,7 @@ router.delete('/:itemID', verify, (req, res) => {
 router.put('/:itemId', verify,(req, res) => {
     const {itemId} = req.params;
     const updatedItem = req.body;
+    //delete all borrowrequest then update item
     Borrow.deleteMany({itemID: itemId}).exec().then(() => {
         Item.findOneAndUpdate({_id: itemId}, updatedItem, {new: true}, (err, doc) => {
             if(!doc) return res.notfound({errors: err, message: "update fail, no item found"});
