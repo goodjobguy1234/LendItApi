@@ -21,7 +21,7 @@ var TransactionSchema = new Schema({
     pricePerDay: {type: Number, min: [50, "Price must more than 50"], required: [true, "Please specify price"]},
     imageURL: String,
     location: {type: String, required: [true, "Please specify location"]},
-    itemDesciption: String,
+    itemDescription: String,
   },
   borrowInfo: {
     borrowID: {

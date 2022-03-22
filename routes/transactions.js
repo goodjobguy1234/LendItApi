@@ -16,22 +16,81 @@ const verify = require('../middleware/tokenVerify');
  *      Transaction:
  *          type: object
  *          required:
- *              - borrowID
  *              - totalPrice
  *          properties:
- *              borrowID:
- *                  type: string
- *                  description: id to reference to borrow
  *              totalPrice:
  *                  type: integer
  *                  description: total price calculate from duration and price per day
  *              returnStatus:
  *                  type: boolean
  *                  description: borrower returning item status false mean not return yet
-
+ *              itemInfo:
+ *                  type: object
+ *                  properties:
+ *                      name:
+ *                          type: string
+ *                          description: name of item
+ *                      pricePerDay:
+ *                          type: integer
+ *                          description: price per day for borrowing item
+ *                      itemDescription:
+ *                          type: string
+ *                      imageURL:
+ *                          type: string
+ *                      location:
+ *                          type: string
+ *                          description: location to retrieve and return the item
+ *                  required:
+ *                      - name
+ *                      - pricePerDay
+ *                      - location
+ *                  example:
+ *                      name: Asus mouse
+ *                      pricePerDay: 400
+ *                      imageURL: someURL
+ *                      location: king david
+ *                      itemDescription: some description here
+ * 
+ *                  
+ *              borrowInfo:
+ *                  type: object
+ *                  properties:
+ *                      borrowerID:
+ *                          type: string
+ *                          description: borrower's user id
+ *                      lenderID:
+ *                          type: string
+ *                          description: lender's user id (owner of item)
+ *                      borrowDuration:
+ *                          type: integer
+ *                          description: duration borrower's borrow the item
+ *                      borrowID:
+ *                          type: string
+ *                          description: id to reference to borrow
+ *                  required:
+ *                      - borrowerID
+ *                      - lenderID
+ *                      - borrowDuration
+ *                      - borrowID
+ *                  example:
+ *                      borrowID: 6211146f0a7700f3a751db18
+ *                      borrowerID: 6210015
+ *                      lenderID: 6110155
+ *                      borrowDuration: 2
  *          example:
- *              borrowID: 6211146f0a7700f3a751db18
- *              totalPrice: 200
+ *              totalPrice: 1300
+ *              returnStatus: false
+ *              itemInfo:
+ *                  name: Asus mouse
+ *                  pricePerDay: 400
+ *                  imageURL: someURL
+ *                  location: king david
+ *                  itemDescription: some description here
+ *              borrowInfo:
+ *                  borrowID: 6211146f0a7700f3a751db18
+ *                  borrowerID: 6210015
+ *                  lenderID: 6110155
+ *                  borrowDuration: 2
  *              
  */
 
@@ -60,7 +119,14 @@ const verify = require('../middleware/tokenVerify');
  *          content:
  *              application/json:
  *                  schema:
- *                      $ref: '#/components/schemas/Transaction'
+ *                      type: object
+ *                      properties:
+ *                          borrowID:
+ *                              type: string
+ *                              example: 6211146f0a7700f3a751db18
+ *                          totalPrice:
+ *                              type: integer
+ *                              example: 5000
  *      responses:
  *          200:
  *              description: create borrow success
